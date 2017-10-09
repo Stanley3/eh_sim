@@ -1,0 +1,7 @@
+project(eh_sim)
+cmake_minimum_required(VERSION 2.6)
+find_package(OpenCV REQUIRED)
+add_subdirectory(utils)
+aux_source_directory(. DIR_SRCS)
+add_executable(main ${DIR_SRCS})
+target_link_libraries(main UTILS ${OpenCV_LIBS})

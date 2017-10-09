@@ -2,3 +2,8 @@ tags
 *.o
 *.swp
 main
+**/CMakeFiles/
+*/Makefile
+*/*.a
+**/*.cmake
+CMakeCache.txt
