@@ -7,3 +7,4 @@ main
 */*.a
 **/*.cmake
 CMakeCache.txt
+test_m*

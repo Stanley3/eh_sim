@@ -30,6 +30,7 @@ namespace eh_sim {
       void set_lambda(const double *,  int);
 
       void set_gc_alpha(double gc_alpha) { this->gc_alpha = gc_alpha; }
+      void set_gc_v(double vtrans, double thre);
 
       int get_use_current_w() { return USE_CURRENT_W; }
       int get_num_gridcells() { return NUM_GRIDCELLS; }
@@ -43,6 +44,7 @@ namespace eh_sim {
       vector<double> get_lambda() { return lambda; }
 
       void gc_multi_init();
+      void gc_population_activity();
 
       template<typename Archive>
         void serialize(Archive& ar, const unsigned int version)
@@ -71,7 +73,9 @@ namespace eh_sim {
       vector<struct gc> gcs;
 
       Mat gc_w_histroy;
+      Mat gc_v;
 
       void gc_weight_init(double, struct gc &);
+      void gc_pa_generation(Mat &, const Mat, const Mat);
   };
 }

@@ -92,6 +92,7 @@ int main() {
     vrot = clip_rad_360(hd.at<double>(0, i) - hd.at<double>(0, i-1));
     head_direction = clip_rad_360(vt_match->get_prev_template().hdc + vrot);
 
+    gc_multi->set_gc_v(vtrans, head_direction);
     image_counter = floor((float)i / vt_match->get_interpl_num());
 
     if (image_counter != pre_image_counter) {

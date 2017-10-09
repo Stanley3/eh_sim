@@ -38,6 +38,11 @@ namespace eh_sim {
       lambda.push_back(lambda_array[i]);
   }
 
+  void Grid_Cell::set_gc_v(double vtrans, double thre) {
+    gc_v.push_back(vtrans * cos(thre));
+    gc_v.push_back(vtrans * sin(thre));
+  }
+
   void Grid_Cell::gc_multi_init() {
     if (USE_CURRENT_W == 1) {
       //加载序列化的数据
@@ -65,22 +70,6 @@ namespace eh_sim {
   void multi_shifts(Mat shifts, Mat result) {
     for (int i=0; i<shifts.cols; ++i) {
       result.at<double>(0, i) = pow(shifts.at<double>(0,i), 2) + pow(shifts.at<double>(1,i),2);
-    }
-  }
-
-  void one_zero_mat(int cols, Mat & dist_mat) {
-    dist_mat = Mat(2, cols, CV_64F);
-    for(int i=0; i<cols; ++i) {
-      dist_mat.at<double>(0, i) = 1;
-      dist_mat.at<double>(1, i) = 0;
-    }
-  }
-
-  void one_one_mat(int cols, Mat & dist_mat) {
-    dist_mat = Mat(2, cols, CV_64F);
-    for (int i=0; i<cols; ++i) {
-      dist_mat.at<double>(0, i) = 1;
-      dist_mat.at<double>(1, i) = 1;
     }
   }
 
@@ -225,6 +214,29 @@ namespace eh_sim {
           gc_item.A.at<double>(0, i) = 1;
       }
     }
+
+  }
+  void Grid_Cell::gc_population_activity() {
+    for (int i=0; i<NUM_GRIDCELLS; ++i) {
+      gc_pa_generation(gcs[i].s, gcs[i].W, gcs[i].A);
+    }
   }
 
+  void Grid_Cell::gc_pa_generation(Mat & s, const Mat W, const Mat A) {
+    double alpha = gc_alpha;
+    Mat v        = gc_v;
+    double dt    = 0.5;
+    double tau   = 5;
+
+    Mat B = (1 + alpha * dir_vects.t() * v).t();
+    Mat s_inputs = (W * s.t()).t() + B;
+
+    for (int i=0; i<s_inputs.rows; ++i) {
+      for (int j=0; j<s_inputs.cols; ++i) {
+        double value = s_inputs.at<double>(i, j);
+        s_inputs.at<double>(i, j) = value > 0 ? value : 0;
+      }
+    }
+    s += dt * (s_inputs - s ) * (1.0 / tau);
+  }
 }
