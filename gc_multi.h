@@ -31,6 +31,7 @@ namespace eh_sim {
 
       void set_gc_alpha(double gc_alpha) { this->gc_alpha = gc_alpha; }
       void set_gc_v(double vtrans, double thre);
+      void set_gcs_s(int id, Mat s) { gcs[id].s = s; }
 
       int get_use_current_w() { return USE_CURRENT_W; }
       int get_num_gridcells() { return NUM_GRIDCELLS; }
@@ -42,9 +43,17 @@ namespace eh_sim {
       double get_gc_alpha() { return gc_alpha; }
       int get_use_periodic_network() { return USE_CURRENT_W; }
       vector<double> get_lambda() { return lambda; }
+      Mat get_gcs_s(int id) { return gcs[id].s; }
+      int  get_number_of() { return gcs.size(); }
+      int  get_gc_neuronsheet_x() { return GC_NEURONSHEET_X; }
+      int  get_gc_ncells() { return gc_ncells; }
 
       void gc_multi_init();
       void gc_population_activity();
+      void pc_population_activity();
+      void gc_hebbian_learning();
+      void gc_w_init(int);
+      void gc_get_pos_xy(double *, double *);
 
       template<typename Archive>
         void serialize(Archive& ar, const unsigned int version)
@@ -74,6 +83,12 @@ namespace eh_sim {
 
       Mat gc_w_histroy;
       Mat gc_v;
+
+      double max_pc_activity;
+      Mat gc_activity;
+      Mat pc_activity;
+      Mat gc_mean_activity;
+      Mat pc_mean_activity;
 
       void gc_weight_init(double, struct gc &);
       void gc_pa_generation(Mat &, const Mat, const Mat);

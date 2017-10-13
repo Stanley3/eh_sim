@@ -96,6 +96,7 @@ namespace eh_sim
       int get_image_width() { return IMAGE_WIDTH; }
       int get_image_height() { return IMAGE_HEIGHT; }
       int get_interpl_num() { return INTERPL_NUM; }
+      int get_vt_matched() { return vt_matched; }
 
       int get_number_of() { return templates.size(); }
 
@@ -106,6 +107,8 @@ namespace eh_sim
       double get_vt_match_threshold() const { return VT_MATCH_THRESHOLD; }
 
       double get_decay(int id) { return templates[id].decay; }
+      double get_gc_x(int id) { return templates[id].gc_x; }
+      double get_gc_y(int id) { return templates[id].gc_y; }
       struct td_visual_template get_prev_template();
 
       int get_current_vt() { return current_vt; }

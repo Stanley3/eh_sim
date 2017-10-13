@@ -7,6 +7,38 @@
 using namespace std;
 using namespace boost;
 
+eh_sim::Visual_Template_Match * vt_match;
+eh_sim::Grid_Cell * gc_multi;
+
+void eh_gridcell_reset(int vt_id, double gc_x, double gc_y) {
+  double dx = vt_match->get_gc_x(vt_id) - gc_x;
+  double dy = vt_match->get_gc_y(vt_id) - gc_y;
+
+  if (vt_match->get_vt_matched()) {
+    cout << "Rest!" << "\n";
+    cout << "dx = " << dx << "\n";
+    cout << "dy = " << dy << "\n";
+
+    for (int i=0; i<gc_multi->get_number_of(); ++i) {
+      Mat gca = gc_multi->get_gcs_s(i).reshape(0, gc_multi->get_gc_neuronsheet_x());
+      Mat shift_row_gca;
+      Mat shift_row_gca2;
+      shiftRow(shift_row_gca, gca, floor(dx+1));
+      shiftRow(shift_row_gca2, gca, floor(dx));
+      gca = shift_row_gca.mul(dx - floor(dx)) + shift_row_gca2.mul(floor(dx+1)-dx);
+
+      Mat shift_col_gca;
+      Mat shift_col_gca2;
+      shiftCol(shift_col_gca, gca, floor(dy+1));
+      shiftCol(shift_col_gca2, gca, floor(dy));
+      gca = shift_col_gca * (dy - floor(dy)) + shift_col_gca2 * (floor(dy+1) - dy);
+
+      gc_multi->set_gcs_s(i, gca.reshape(0, gc_multi->get_gc_ncells()).t());
+
+    }
+  }
+}
+
 int main() {
   string nips_data_set;
   string running_mode;
@@ -24,11 +56,9 @@ int main() {
   //get_setting_from_ptree(gc_neuronsheet_x, vt_settings, "gc_neuronsheet_x", 40);
   //gc_settings.put("gc_neuronsheet_x", gc_neuronsheet_x);
 
-  eh_sim::Visual_Template_Match * vt_match;
 
   vt_match = new eh_sim::Visual_Template_Match(vt_settings);
 
-  eh_sim::Grid_Cell * gc_multi;
   gc_multi = new eh_sim::Grid_Cell(gc_settings);
   double const array[] = {11,16.5,24.75,37.125,55.6875};
   gc_multi->set_lambda(array, sizeof(array)/sizeof(double));
@@ -101,13 +131,22 @@ int main() {
       pre_image_counter = image_counter;
     }
 
+    gc_multi->gc_population_activity();
+    gc_multi->pc_population_activity();
+
+    if (i > 1) {
+      gc_multi->gc_hebbian_learning();
+    } else {
+      gc_multi->gc_w_init(i);
+    }
+
     if ((i+1) % live_plot == 1) {
       double vtrans, vrot;
       vtrans = sqrt(pow(pos.at<double>(0, i) - pos.at<double>(0, i-live_plot), 2) +
           pow(pos.at<double>(1, i) - pos.at<double>(1, i-live_plot), 2));
       vrot = clip_rad_360(hd.at<double>(0, i) - hd.at<double>(0, i-live_plot));
-      //[pc_x, pc_y] = gc_get_pos_xy(pc_activity);
       double pc_x, pc_y;
+      gc_multi->gc_get_pos_xy(&pc_x, &pc_y);
       int vt_id = vt_match->image_compare_with_template(gray_image, depth_image, pc_x, pc_y, head_direction);
       //eh_posecell_iteration(vt_id, vtrans, hd);
       //eh_gridcell_reset(pc_activity,vt_id,pc_x,pc_y);

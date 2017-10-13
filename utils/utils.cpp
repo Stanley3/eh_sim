@@ -118,3 +118,45 @@ void meshgrid(const vector<double> &xgv, const vector<double> &ygv, cv::Mat &X, 
   cv::repeat(cv::Mat(t_y), 1, t_x.size(), Y);
 }
 
+void ind2sub(const int sub,const int cols, const int rows,int *row,int *col) {
+  *row = sub / cols;
+  *col = sub % cols;
+}
+
+void shiftCol(Mat& out, Mat in, int numRight){
+  if(numRight == 0){ 
+    in.copyTo(out);
+    return;
+  }
+
+  int ncols = in.cols;
+  int nrows = in.rows;
+
+  out = Mat::zeros(in.size(), in.type());
+
+  numRight = numRight%ncols;
+  if(numRight < 0)
+    numRight = ncols+numRight;
+
+  in(cv::Rect(ncols-numRight,0, numRight,nrows)).copyTo(out(cv::Rect(0,0,numRight,nrows)));
+  in(cv::Rect(0,0, ncols-numRight,nrows)).copyTo(out(cv::Rect(numRight,0,ncols-numRight,nrows)));
+}
+
+void shiftRow(Mat& out, Mat in, int numRight){
+  int ncols = in.cols;
+  int nrows = in.rows;
+  numRight = numRight%nrows;
+
+  out = Mat::zeros(in.size(), in.type());
+
+  if(numRight == 0){
+    in.copyTo(out);
+    return;
+  }
+
+  if(numRight < 0)
+    numRight = nrows+numRight;
+
+  in(cv::Rect(0, nrows-numRight, ncols,numRight)).copyTo(out(cv::Rect(0,0,ncols,numRight)));
+  in(cv::Rect(0,0, ncols,nrows-numRight)).copyTo(out(cv::Rect(0,numRight,ncols,nrows-numRight)));
+}

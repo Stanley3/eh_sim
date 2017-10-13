@@ -120,7 +120,6 @@ namespace eh_sim {
     double w_sparse_thresh = (-1) * pow(10, -6);
     Mat squared_shift_lengths = Mat(9, ncells, CV_64F);
 
-    gc_item.W;
     for (int i=0; i<ncells; ++i) {
       if ((i % (int)round(ncells/10)) == 0) {
         printf("Generating weight matrix. %d%% done.\n", (int)round(i/ncells*100));
@@ -220,6 +219,88 @@ namespace eh_sim {
     for (int i=0; i<NUM_GRIDCELLS; ++i) {
       gc_pa_generation(gcs[i].s, gcs[i].W, gcs[i].A);
     }
+  }
+
+  void Grid_Cell::pc_population_activity() {
+
+    for(int i=0; i<NUM_GRIDCELLS; ++i) {
+      if (i == 0) {
+        pc_activity.push_back(gcs[i].s * gcs[i].w);
+        gc_activity.push_back(gcs[i].s);
+      } else {
+        pc_activity.push_back(pc_activity + gcs[i].s * gcs[i].w);
+        gc_activity.push_back(gc_activity + gcs[i].s);
+      }
+    }
+
+    gc_mean_activity = gc_activity * (1.0 / NUM_GRIDCELLS);
+    pc_mean_activity = pc_activity * (1.0 / NUM_GRIDCELLS);
+  }
+
+  void Grid_Cell::gc_hebbian_learning() {
+    double temp_w = 0, learing_rate = 0.0005;
+    double sum_w = 0;
+
+    for (int i=0; i<NUM_GRIDCELLS; ++i) {
+      gcs[i].w = gcs[i].w + ((Mat)(learing_rate * pc_activity * (gcs[i].s - gc_mean_activity).t())).at<double>(0, 0);
+
+      if (gcs[i].w < 0)
+        gcs[i].w = 0;
+
+      if (temp_w < gcs[i].w)
+        temp_w = gcs[i].w;
+
+      sum_w += gcs[i].w * gcs[i].w;
+    }
+
+    for (int i=0; i<NUM_GRIDCELLS; ++i) 
+      gcs[i].w = gcs[i].w / sqrt(sum_w);
+  }
+
+  void Grid_Cell::gc_w_init(int row) {
+    for (int i=0; i<NUM_GRIDCELLS; ++i) {
+      gcs[i].w = 1.0 / NUM_GRIDCELLS;
+      gc_w_histroy.at<double>(row, i) = gcs[i].w;
+    }
+  }
+
+  void Grid_Cell::gc_get_pos_xy(double *X, double *Y) {
+    Scalar total = sum(pc_activity);
+    pc_activity = pc_activity / total[0];
+
+    int GC_CEllS_TO_AVG = 3;
+    vector<int> GC_AVG_XY_WRAP;
+
+    for (int j=GC_NEURONSHEET_X-GC_CEllS_TO_AVG+1; j<=GC_NEURONSHEET_X; ++j)
+      GC_AVG_XY_WRAP.push_back(j);
+    for (int j=1; j<=GC_NEURONSHEET_X; ++j)
+      GC_AVG_XY_WRAP.push_back(j);
+    for (int j=1; j<=GC_CEllS_TO_AVG; ++j)
+      GC_AVG_XY_WRAP.push_back(j);
+
+    int max_index;
+    minMaxIdx(pc_activity, 0, 0, 0, &max_index);
+
+    int x, y;
+    ind2sub(max_index, GC_NEURONSHEET_X, GC_NEURONSHEET_X, &y, &x);// 需测试
+    pc_activity = pc_activity.reshape(0, GC_NEURONSHEET_X).t();
+    Mat temp_pc_activity = Mat::ones(GC_NEURONSHEET_X, GC_NEURONSHEET_X, CV_64F);
+    temp_pc_activity.rowRange(GC_AVG_XY_WRAP[x], GC_AVG_XY_WRAP[x+GC_CEllS_TO_AVG*2]).
+        colRange(GC_AVG_XY_WRAP[y], GC_AVG_XY_WRAP[y+GC_CEllS_TO_AVG*2]) = 
+        pc_activity.rowRange(GC_AVG_XY_WRAP[x], GC_AVG_XY_WRAP[x+GC_CEllS_TO_AVG*2]).
+          colRange(GC_AVG_XY_WRAP[y], GC_AVG_XY_WRAP[y+GC_CEllS_TO_AVG*2]);
+
+    Mat x_sums, y_sums;
+    for (int i=0; i<temp_pc_activity.cols; ++i) {
+      x_sums.push_back(cv::sum(temp_pc_activity.colRange(i, i+1)));
+      y_sums.push_back(cv::sum(temp_pc_activity.rowRange(i, i+1)));
+    }
+    x_sums = x_sums.t();
+    y_sums = y_sums.t();
+
+    double t = atan2(cv::sum(x_sums.mul(Mat(gc_sin_lookup).t()))[0], cv::sum(x_sums.mul(Mat(gc_cos_lookup).t()))[0]);
+    *X = fmod(t * GC_NEURONSHEET_X / (2 * M_PI), GC_NEURONSHEET_X);
+    *Y = fmod(atan2(cv::sum(y_sums.mul(gc_sin_lookup))[0], cv::sum(y_sums.mul(gc_cos_lookup))[0]) * GC_NEURONSHEET_X / (2 * M_PI), GC_NEURONSHEET_X);
   }
 
   void Grid_Cell::gc_pa_generation(Mat & s, const Mat W, const Mat A) {

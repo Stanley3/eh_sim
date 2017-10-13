@@ -1,5 +1,6 @@
 project(eh_sim)
-cmake_minimum_required(VERSION 2.6)
+set (CMAKE_CXX_STANDARD 11)
+cmake_minimum_required(VERSION 3.1)
 find_package(OpenCV REQUIRED)
 add_subdirectory(utils)
 aux_source_directory(. DIR_SRCS)

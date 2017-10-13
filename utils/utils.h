@@ -26,6 +26,9 @@ void interpolate(int, double, int, vector<odometry_raw>, Mat &, Mat &);
 void image_to_gray(string, Mat &);
 void get_depth_image(string, Mat &);
 void meshgrid(const vector<double>&, const vector<double>&, Mat &, Mat &);
+void ind2sub(const int, const int, const int, int *, int *);
+void shiftCol(Mat &, Mat, int);
+void shiftRow(Mat &, Mat, int);
 
 template<typename T>
 inline void get_setting_from_ptree(T & var, boost::property_tree::ptree & settings, std::string name, T default_value)

@@ -190,6 +190,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+test_m.o: test_m.cpp.o
+
+.PHONY : test_m.o
+
+# target to build an object file
+test_m.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/test_m.cpp.o
+.PHONY : test_m.cpp.o
+
+test_m.i: test_m.cpp.i
+
+.PHONY : test_m.i
+
+# target to preprocess a source file
+test_m.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/test_m.cpp.i
+.PHONY : test_m.cpp.i
+
+test_m.s: test_m.cpp.s
+
+.PHONY : test_m.s
+
+# target to generate assembly for a file
+test_m.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/test_m.cpp.s
+.PHONY : test_m.cpp.s
+
 visual_template_match.o: visual_template_match.cpp.o
 
 .PHONY : visual_template_match.o
@@ -233,6 +260,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... test_m.o"
+	@echo "... test_m.i"
+	@echo "... test_m.s"
 	@echo "... visual_template_match.o"
 	@echo "... visual_template_match.i"
 	@echo "... visual_template_match.s"
