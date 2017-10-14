@@ -84,3 +84,31 @@ inline double clip_rad_180(double angle)
   return angle;
 }
 
+inline double Get_Signed_Delta_Rad(double angle1, double angle2)
+{
+  double dir = clip_rad_180(angle2 - angle1);
+
+  double delta_angle = clip_rad_360(angle1) - clip_rad_360(angle2);
+  delta_angle = abs(delta_angle);
+
+  if (delta_angle < 2.0 * M_PI - delta_angle)
+  {
+    if (dir > 0)
+      return delta_angle;
+    else
+      return -delta_angle;
+  }
+  else
+  {
+    if (dir > 0)
+      return 2.0 * M_PI - delta_angle;
+    else
+      return -(2.0 * M_PI - delta_angle);
+  }
+}
+
+inline double Get_Min_Delta(double d1, double d2, double max) {
+ double t1 = fabs(d1 - d2);
+ double t2 = max - fabs(d1 - d2);
+ return t1 < t2 ? t1: t2;
+}

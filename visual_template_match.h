@@ -58,6 +58,7 @@ namespace eh_sim
   class Visual_Template_Match
   {
     public:
+      Visual_Template_Match() { ; }
       Visual_Template_Match(ptree settings);
 
       ~Visual_Template_Match();
@@ -85,6 +86,8 @@ namespace eh_sim
       void set_depth_weight(double weight) { VT_DEPTH_WEIGHT = weight; }
       void set_match_threshold(double thre) { VT_MATCH_THRESHOLD = thre; }
       void set_prev_vt_id(int vt_id) { prev_vt_id = vt_id; }
+      void set_numexp(int vt_id, int new_numexp) { templates[vt_id].numexp = new_numexp; }
+      void set_vt_repeat(vt_repeat) { this.vt_repeat = vt_repeat; }
 
       int get_x_range_min() { return IMAGE_VT_X_RANGE_MIN; }
       int get_x_range_max() { return IMAGE_VT_X_RANGE_MAX; }
@@ -97,6 +100,7 @@ namespace eh_sim
       int get_image_height() { return IMAGE_HEIGHT; }
       int get_interpl_num() { return INTERPL_NUM; }
       int get_vt_matched() { return vt_matched; }
+      int get_gc_neuronsheet_x() { return GC_NEURONSHEET_X; }
 
       int get_number_of() { return templates.size(); }
 
@@ -109,6 +113,8 @@ namespace eh_sim
       double get_decay(int id) { return templates[id].decay; }
       double get_gc_x(int id) { return templates[id].gc_x; }
       double get_gc_y(int id) { return templates[id].gc_y; }
+      double get_hdc(int id)  { return templates[id].hdc; }
+      int get_numexp(int vt_id) { return templates[vt_id].numexp; }
       struct td_visual_template get_prev_template();
 
       int get_current_vt() { return current_vt; }
@@ -127,11 +133,13 @@ namespace eh_sim
       unsigned int get_current_exp_size() { return templates[current_vt].exps.size(); }
       unsigned int get_current_exp_link(int id) { return templates[current_vt].exps[id]; }
       void add_exp_to_current(unsigned int id) { templates[current_vt].exps.push_back(id); }
+      void add_exp_to_vt(int vt_id, int exp_id) { templates[vt_id].exps[templates[vt_id].numexp] = exp_id; } // TODO:Check
 
       double get_current_gc_x() { return templates[current_vt].gc_x; }
       double get_current_gc_y() { return templates[current_vt].gc_y; }
       double get_current_hdc() { return templates[current_vt].hdc; }
       double get_depth_sum() { return DEPTH_SUM; }
+      double get_vt_repeat() { return vt_repeat; }
 
       //void set_view_rgb(const unsigned char * view_rgb) { this->view_rgb = view_rgb; }
       //	const unsigned char * get_view_rgb() {	return view_rgb; }
@@ -163,7 +171,6 @@ namespace eh_sim
     private:
       friend class boost::serialization::access;
 
-      Visual_Template_Match() { ; }
       void clip_view_x_y(int &x, int &y);
       void rs_compare_segments(vector<double>, vector<double>, vector<double>, vector<double>, int, int, vector<double>);
 
