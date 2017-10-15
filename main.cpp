@@ -1,7 +1,8 @@
 #include "utils/utils.h"
 #include "gc_multi.h"
-#include <iostream>
 #include "visual_template_match.h"
+#include "eh_congitive_map.h"
+#include <iostream>
 #include <string.h>
 
 using namespace std;
@@ -9,6 +10,7 @@ using namespace boost;
 
 eh_sim::Visual_Template_Match * vt_match;
 eh_sim::Grid_Cell * gc_multi;
+eh_sim::Cognitive_Map * cg_map;
 
 void eh_gridcell_reset(int vt_id, double gc_x, double gc_y) {
   double dx = vt_match->get_gc_x(vt_id) - gc_x;
@@ -95,6 +97,7 @@ int main() {
   vt_match->set_depth_sum(vt_match->get_x_range_max(), vt_match->get_y_range_max());
   struct eh_sim::td_visual_template first_temp;
   vt_match->init_template_one(first_temp);
+  cg_map = new eh_sim::Cognitive_Map(*vt_match);
 
   vector<string> file_names;
   get_all_files((file_path + "images/").c_str(), file_names);
@@ -151,6 +154,9 @@ int main() {
       //eh_posecell_iteration(vt_id, vtrans, hd);
       //eh_gridcell_reset(pc_activity,vt_id,pc_x,pc_y);
       //eh_cognitive_map(vt_id,vtrans,vrot,pc_x,pc_y,hd);
+      // pc_activity not use in eh_gridcell_reset;
+      eh_gridcell_reset(vt_id, pc_x, pc_y);
+      cg_map->start_cognitive_map(vt_id, vtrans, vrot, pc_x, pc_y, head_direction);
       vt_match->set_prev_vt_id(vt_id);
       //pc_recording;
       //gc_plot;

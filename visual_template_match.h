@@ -115,9 +115,11 @@ namespace eh_sim
       double get_gc_y(int id) { return templates[id].gc_y; }
       double get_hdc(int id)  { return templates[id].hdc; }
       int get_numexp(int vt_id) { return templates[vt_id].numexp; }
+      vector<int> get_exps(int vt_id) { return templates[vt_id].exps; }
       struct td_visual_template get_prev_template();
 
       int get_current_vt() { return current_vt; }
+      int get_prev_vt_id() { return prev_vt_id; }
       void set_current_vt(int id) {
         if (current_vt != id)
         {
