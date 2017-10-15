@@ -225,10 +225,10 @@ namespace eh_sim {
 
     for(int i=0; i<NUM_GRIDCELLS; ++i) {
       if (i == 0) {
-        pc_activity.push_back(gcs[i].s * gcs[i].w);
+        pc_activity.push_back(gcs[i].s.mul(gcs[i].w));
         gc_activity.push_back(gcs[i].s);
       } else {
-        pc_activity.push_back(pc_activity + gcs[i].s * gcs[i].w);
+        pc_activity.push_back(pc_activity + gcs[i].s.mul(gcs[i].w));
         gc_activity.push_back(gc_activity + gcs[i].s);
       }
     }
@@ -267,6 +267,9 @@ namespace eh_sim {
   void Grid_Cell::gc_get_pos_xy(double *X, double *Y) {
     Scalar total = sum(pc_activity);
     pc_activity = pc_activity / total[0];
+
+    cout << "total[0] = " << total[0] << endl;
+    cout << "pc_activity.size = " << pc_activity.size() << endl;
 
     int GC_CEllS_TO_AVG = 3;
     vector<int> GC_AVG_XY_WRAP;
@@ -309,7 +312,7 @@ namespace eh_sim {
     double dt    = 0.5;
     double tau   = 5;
 
-    Mat B = (1 + alpha * dir_vects.t() * v).t();
+    Mat B = (1 +  dir_vects.mul(alpha).t() * v.mul(alpha)).t();
     Mat s_inputs = (W * s.t()).t() + B;
 
     for (int i=0; i<s_inputs.rows; ++i) {

@@ -1,3 +1,5 @@
+#ifndef _EH_SIM_UTILS_H_
+#define _EH_SIM_UTILS_H_
 #include <math.h>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>
@@ -112,3 +114,4 @@ inline double Get_Min_Delta(double d1, double d2, double max) {
  double t2 = max - fabs(d1 - d2);
  return t1 < t2 ? t1: t2;
 }
+#endif

@@ -87,7 +87,7 @@ namespace eh_sim
       void set_match_threshold(double thre) { VT_MATCH_THRESHOLD = thre; }
       void set_prev_vt_id(int vt_id) { prev_vt_id = vt_id; }
       void set_numexp(int vt_id, int new_numexp) { templates[vt_id].numexp = new_numexp; }
-      void set_vt_repeat(vt_repeat) { this.vt_repeat = vt_repeat; }
+      void set_vt_repeat(int vt_repeat) { this->vt_repeat = vt_repeat; }
 
       int get_x_range_min() { return IMAGE_VT_X_RANGE_MIN; }
       int get_x_range_max() { return IMAGE_VT_X_RANGE_MAX; }

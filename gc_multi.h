@@ -48,6 +48,10 @@ namespace eh_sim {
       int  get_gc_neuronsheet_x() { return GC_NEURONSHEET_X; }
       int  get_gc_ncells() { return gc_ncells; }
 
+      //test
+      Mat get_pc_activity() { return pc_activity; }
+      Mat get_gc_activity() { return gc_activity; }
+
       void gc_multi_init();
       void gc_population_activity();
       void pc_population_activity();

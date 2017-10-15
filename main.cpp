@@ -2,6 +2,7 @@
 #include "gc_multi.h"
 #include "visual_template_match.h"
 #include "eh_congitive_map.h"
+#include "eh_posecell.h"
 #include <iostream>
 #include <string.h>
 
@@ -11,6 +12,7 @@ using namespace boost;
 eh_sim::Visual_Template_Match * vt_match;
 eh_sim::Grid_Cell * gc_multi;
 eh_sim::Cognitive_Map * cg_map;
+eh_sim::PoseCell * pc;
 
 void eh_gridcell_reset(int vt_id, double gc_x, double gc_y) {
   double dx = vt_match->get_gc_x(vt_id) - gc_x;
@@ -114,11 +116,14 @@ int main() {
   cout << "pos.size = " << pos.size() << "\n";
   cout << "hd.size = " << hd.size() << endl;
 
+  gc_multi->gc_multi_init();
+
   int pre_image_counter = -1;
   int image_counter;
   int live_plot = 10;
   Mat gray_image, depth_image;
   for(int i=1; i<pos.cols; ++i) {
+    cout << "i = " << i << endl;
     double vtrans, vrot, head_direction;
     vtrans = sqrt(pow(pos.at<double>(0, i) - pos.at<double>(0, i-1), 2) +
         pow(pos.at<double>(1, i) - pos.at<double>(1, i-1), 2));
@@ -136,6 +141,7 @@ int main() {
 
     gc_multi->gc_population_activity();
     gc_multi->pc_population_activity();
+    cout << "pc_activity.size = " << gc_multi->get_pc_activity().size() << endl;
 
     if (i > 1) {
       gc_multi->gc_hebbian_learning();
@@ -155,6 +161,8 @@ int main() {
       //eh_gridcell_reset(pc_activity,vt_id,pc_x,pc_y);
       //eh_cognitive_map(vt_id,vtrans,vrot,pc_x,pc_y,hd);
       // pc_activity not use in eh_gridcell_reset;
+      pc = new eh_sim::PoseCell();
+      pc->eh_posecell_iteration(vt_id, vtrans, vrot, gc_multi->get_gc_alpha());
       eh_gridcell_reset(vt_id, pc_x, pc_y);
       cg_map->start_cognitive_map(vt_id, vtrans, vrot, pc_x, pc_y, head_direction);
       vt_match->set_prev_vt_id(vt_id);
