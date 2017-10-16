@@ -8,3 +8,4 @@ main
 **/*.cmake
 CMakeCache.txt
 test_m*
+Makefile

@@ -68,7 +68,7 @@ int main() {
   gc_multi->set_lambda(array, sizeof(array)/sizeof(double));
 
   if (((string)"IJCAI").compare(nips_data_set) == 0) {
-    file_path = "/home/jo/matlab/eh_slam_nips_20140523-11/data_set/20130806_RCT_2/";
+    file_path = "/Users/jo/Documents/workspace/eh_slam_nips_20140523-11/data_set/20130806_RCT_2/";
     vt_match->set_rgb_weight(0.85);
     vt_match->set_depth_weight(0.15);
     vt_match->set_y_range(0, 119);
@@ -81,7 +81,7 @@ int main() {
     else
       vt_match->set_match_threshold(0.065);
   } else if (((string)"ICRA").compare(nips_data_set) == 0) {
-    file_path = "/home/jo/matlab/eh_slam_nips_20140523-11/data_set/20130903_cw_02/";
+    file_path = "/Users/jo/Documents/workspace/eh_slam_nips_20140523-11/data_set/20130903_cw_02/";
     vt_match->set_rgb_weight(0.9);
     vt_match->set_depth_weight(0.1);
     vt_match->set_y_range(0, vt_match->get_image_height() - 1);
