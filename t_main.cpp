@@ -43,6 +43,7 @@ void eh_gridcell_reset(int vt_id, double gc_x, double gc_y) {
   }
 }
 
+
 int main() {
   string nips_data_set;
   string running_mode;
@@ -99,7 +100,7 @@ int main() {
   vt_match->set_depth_sum(vt_match->get_x_range_max(), vt_match->get_y_range_max());
   struct eh_sim::td_visual_template first_temp;
   vt_match->init_template_one(first_temp);
-  cg_map = new eh_sim::Cognitive_Map(*vt_match);
+  cg_map = new eh_sim::Cognitive_Map(vt_match);
 
   vector<string> file_names;
   get_all_files((file_path + "images/").c_str(), file_names);

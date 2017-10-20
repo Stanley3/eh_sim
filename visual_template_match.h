@@ -135,7 +135,7 @@ namespace eh_sim
       unsigned int get_current_exp_size() { return templates[current_vt].exps.size(); }
       unsigned int get_current_exp_link(int id) { return templates[current_vt].exps[id]; }
       void add_exp_to_current(unsigned int id) { templates[current_vt].exps.push_back(id); }
-      void add_exp_to_vt(int vt_id, int exp_id) { templates[vt_id].exps[templates[vt_id].numexp] = exp_id; } // TODO:Check
+      void add_exp_to_vt(int vt_id, int exp_id) { templates[vt_id].exps.push_back(exp_id); } // TODO:Check
 
       double get_current_gc_x() { return templates[current_vt].gc_x; }
       double get_current_gc_y() { return templates[current_vt].gc_y; }
@@ -174,7 +174,7 @@ namespace eh_sim
       friend class boost::serialization::access;
 
       void clip_view_x_y(int &x, int &y);
-      void rs_compare_segments(vector<double>, vector<double>, vector<double>, vector<double>, int, int, vector<double>);
+      void rs_compare_segments(vector<double>, vector<double>, vector<double>, vector<double>, int, int, vector<double> &);
 
       int VT_SHIFT_MATCH;//20
       double VT_ACTIVE_DECAY;//1.0

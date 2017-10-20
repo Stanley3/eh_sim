@@ -28,7 +28,7 @@ namespace eh_sim {
 
   class Cognitive_Map {
     public:
-      Cognitive_Map(eh_sim::Visual_Template_Match );
+      Cognitive_Map(eh_sim::Visual_Template_Match * );
       ~Cognitive_Map();
       void start_cognitive_map(int, double, double, double, double, double);
 
@@ -45,7 +45,7 @@ namespace eh_sim {
       double EXP_CORRECTION;
       double EXP_LOOPS;
 
-      Visual_Template_Match vtm;
+      Visual_Template_Match * vtm;
 
       vector<int> exp_history;
       vector<struct ex_map> exps;

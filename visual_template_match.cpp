@@ -295,7 +295,7 @@ namespace eh_sim
     vector<double> gray_image_x_sums, depth_image_x_sums;
     reduce(sub_gray_image, gray_image_x_sums, 0, CV_REDUCE_SUM);
     reduce(sub_depth_image, depth_image_x_sums, 0, CV_REDUCE_SUM);
-    double gray_image_sums  = accumulate(gray_image_x_sums.begin(), gray_image_x_sums.end(), 0);
+    double gray_image_sums  = cv::sum(gray_image_x_sums)[0];
     //double depth_image_sums = accumulate(depth_image_x_sums.begin(), depth_image_x_sums.end(), 0);
 
     for(int i=0; i<gray_image_x_sums.size(); ++i)
@@ -337,7 +337,7 @@ namespace eh_sim
       new_temp.first = 1;
       new_temp.numexp = 0;
       templates.push_back(new_temp);
-      vt_id = numvts;
+      vt_id = numvts - 1;
     } else {
       vt_id = diff_id;
       templates[vt_id].decay += VT_ACTIVE_DECAY;
@@ -355,14 +355,14 @@ namespace eh_sim
   }
 
   typedef vector<double> vd;
-  void Visual_Template_Match::rs_compare_segments(vd mono_seg1, vd depth_seg1, vd mono_seg2, vd depth_seg2, int slen, int cwl, vd result) {
+  void Visual_Template_Match::rs_compare_segments(vd mono_seg1, vd depth_seg1, vd mono_seg2, vd depth_seg2, int slen, int cwl, vd & result) {
     int mindiff   = pow(10 , 8);
     int minoffset = 0;
     for (int offset=0; offset<=slen; ++offset) {
       Mat mono_diff = abs(Mat(mono_seg1).rowRange(0+offset, cwl) - Mat(mono_seg2).rowRange(0, cwl-offset)).t();
       Mat depth_diff = abs(Mat(depth_seg1).rowRange(0+offset, cwl) - Mat(depth_seg2).rowRange(0, cwl-offset)).t();
-      double cdiff = (accumulate(mono_diff.begin<double>(), mono_diff.end<double>(), 0) * VT_RGB_WEIGHT +
-        accumulate(depth_diff.begin<double>(), depth_diff.end<double>(), 0) * VT_DEPTH_WEIGHT) / (cwl - offset);
+      double cdiff = (cv::sum(mono_diff)[0] * VT_RGB_WEIGHT +
+        cv::sum(depth_diff)[0] * VT_DEPTH_WEIGHT) / (cwl - offset);
 
       if (cdiff < mindiff) {
         mindiff = cdiff;
@@ -373,8 +373,8 @@ namespace eh_sim
     for (int offset=1; offset<=slen; ++offset) {
       Mat mono_diff = abs(Mat(mono_seg1).rowRange(0, cwl-offset) - Mat(mono_seg2).rowRange(0+offset, cwl)).t();
       Mat depth_diff = abs(Mat(depth_seg1).rowRange(0, cwl-offset) - Mat(depth_seg2).rowRange(0+offset, cwl)).t();
-      double cdiff = (accumulate(mono_diff.begin<double>(), mono_diff.end<double>(), 0) * VT_RGB_WEIGHT +
-          accumulate(depth_diff.begin<double>(), depth_diff.end<double>(), 0) * VT_DEPTH_WEIGHT) / (cwl - offset);
+      double cdiff = (cv::sum(mono_diff)[0] * VT_RGB_WEIGHT +
+          cv::sum(depth_diff)[0] * VT_DEPTH_WEIGHT) / (cwl - offset);
 
       if (cdiff < mindiff) {
         mindiff = cdiff;

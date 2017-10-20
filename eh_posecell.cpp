@@ -16,27 +16,21 @@ namespace eh_sim {
     PC_W_E_DIM_HALF = floor(PC_W_E_DIM / 2);
     PC_W_I_DIM_HALF = floor(PC_W_I_DIM / 2);
 
-    vector<int> v(PC_W_E_DIM_HALF);
-    iota(std::begin(v), std::end(v), PC_DIM_XY - PC_W_E_DIM_HALF + 1);
-    PC_E_XY_WRAP.push_back(v);
-    v.resize(PC_DIM_XY);
-    iota(std::begin(v), std::end(v), 1);
-    PC_E_XY_WRAP.push_back(v);
-    v.resize(PC_W_E_DIM_HALF);
-    iota(std::begin(v), std::end(v), 1);
-    PC_E_XY_WRAP.push_back(v);
-    PC_E_XY_WRAP.t();
+    vector<int> v(PC_W_E_DIM_HALF * 2 + PC_DIM_XY);
+    std::vector<int>::iterator v_b = std::begin(v);
+    iota(v_b, v_b + PC_W_E_DIM_HALF, PC_DIM_XY - PC_W_E_DIM_HALF + 1);
+    iota(v_b + PC_W_E_DIM_HALF, v_b + PC_W_E_DIM_HALF + PC_DIM_XY, 1);
+    iota(v_b + PC_W_E_DIM_HALF + PC_DIM_XY, std::end(v), 1);
+    PC_E_XY_WRAP = Mat(v, true).t();
+    cout << "PC_E_XY_WRAP = \n" << PC_E_XY_WRAP << "\n";
 
-    v.resize(PC_W_I_DIM_HALF);
-    iota(std::begin(v), std::end(v), PC_DIM_XY - PC_W_I_DIM_HALF + 1);
-    PC_I_XY_WRAP.push_back(v);
-    v.resize(PC_DIM_XY);
-    iota(std::begin(v), std::end(v), 1);
-    PC_I_XY_WRAP.push_back(v);
-    v.resize(PC_W_I_DIM_HALF);
-    iota(std::begin(v), std::end(v), 1);
-    PC_I_XY_WRAP.push_back(v);
-    PC_I_XY_WRAP.t();
+    vector<int> z(PC_W_I_DIM_HALF * 2 + PC_DIM_XY);
+    std::vector<int>::iterator z_b = std::begin(z);
+    iota(z_b, z_b + PC_W_I_DIM_HALF, PC_DIM_XY - PC_W_I_DIM_HALF + 1);
+    iota(z_b + PC_W_I_DIM_HALF, z_b + PC_W_I_DIM_HALF + PC_DIM_XY, 1);
+    iota(z_b + PC_W_I_DIM_HALF + PC_DIM_XY, std::end(z), 1);
+    PC_I_XY_WRAP = Mat(z, true).t();
+    cout << "PC_I_XY_WRAP = \n" << PC_I_XY_WRAP << endl;
 
     pcs = Mat::zeros(PC_DIM_XY, PC_DIM_XY, CV_64F);
     int x_pc = floor(PC_DIM_XY / 2) + 1;
@@ -65,7 +59,7 @@ namespace eh_sim {
     Mat pca_new = Mat::zeros(PC_DIM_XY, PC_DIM_XY, CV_64F);
     for (int x=0; x<PC_DIM_XY; ++x) {
       for (int y=0; y<PC_DIM_XY; ++y) {
-        if (fabs(pcs.at<double>(x,y) - 0) < 0.000001) {
+        if (fabs(pcs.at<double>(x,y) - 0) >= 0.000001) {
           for(int t_x=x; t_x<PC_W_E_DIM; ++t_x) {
             for (int t_y=y; t_y<PC_W_E_DIM; ++t_y) {
               pca_new.at<double>(PC_E_XY_WRAP.at<int>(0, t_x), PC_E_XY_WRAP.at<int>(0, t_y)) +=
@@ -80,7 +74,7 @@ namespace eh_sim {
     pca_new = Mat::zeros(PC_DIM_XY, PC_DIM_XY, CV_64F);
     for (int x=0; x<PC_DIM_XY; ++x) {
       for (int y=0; y<PC_DIM_XY; ++y) {
-        if (fabs(pcs.at<double>(x, y) - 0) < 0.000001) {
+        if (fabs(pcs.at<double>(x, y) - 0) >= 0.000001) {
           for (int t_x=x; t_x<PC_W_I_DIM; ++t_x) {
             for (int t_y=y; t_y<PC_W_I_DIM; ++t_y) {
               pca_new.at<double>(PC_I_XY_WRAP.at<int>(0, t_x), PC_I_XY_WRAP.at<int>(0, t_y)) +=
