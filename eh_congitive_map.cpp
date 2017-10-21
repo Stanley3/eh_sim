@@ -42,6 +42,7 @@ namespace eh_sim {
     new_exp.x_m   = exps[curr_exp_id].x_m + accum_delta_x;
     new_exp.y_m   = exps[curr_exp_id].y_m + accum_delta_y;
     new_exp.facing_rad = clip_rad_180(accum_delta_facing);
+    new_exp.numlinks = 0;
     //vector<struct ex_map>::iterator it = exps.begin();
     //exps.insert(it + new_exp_id, new_exp);
     exps.push_back(new_exp);

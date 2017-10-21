@@ -9,3 +9,4 @@ main
 CMakeCache.txt
 test_m*
 Makefile
+t_main

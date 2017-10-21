@@ -19,7 +19,7 @@ void eh_gridcell_reset(int vt_id, double gc_x, double gc_y) {
   double dy = vt_match->get_gc_y(vt_id) - gc_y;
 
   if (vt_match->get_vt_matched()) {
-    cout << "Rest!" << "\n";
+    cout << "Reset!" << "\n";
     cout << "dx = " << dx << "\n";
     cout << "dy = " << dy << "\n";
 
@@ -150,12 +150,12 @@ int main() {
       gc_multi->gc_w_init(i);
     }
 
+    //double vtrans, vrot;
+    double pc_x, pc_y;
     if ((i+1) % live_plot == 1) {
-      double vtrans, vrot;
       vtrans = sqrt(pow(pos.at<double>(0, i) - pos.at<double>(0, i-live_plot), 2) +
           pow(pos.at<double>(1, i) - pos.at<double>(1, i-live_plot), 2));
       vrot = clip_rad_360(hd.at<double>(0, i) - hd.at<double>(0, i-live_plot));
-      double pc_x, pc_y;
       gc_multi->gc_get_pos_xy(&pc_x, &pc_y);
       int vt_id = vt_match->image_compare_with_template(gray_image, depth_image, pc_x, pc_y, head_direction);
       //eh_posecell_iteration(vt_id, vtrans, hd);
