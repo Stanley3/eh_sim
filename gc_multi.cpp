@@ -24,7 +24,7 @@ namespace eh_sim {
 
     Mat dirs = (Mat_<double>(2,2) << 0, M_PI / 2, M_PI, 3 * M_PI / 2);  
     Mat tmp_dirs = ((Mat)(repeat(dirs, sqrt(gc_ncells) / 2, sqrt(gc_ncells) / 2).t())).reshape(0, 1);
-    dir_vects = Mat(2, tmp_dirs.cols, CV_64F);
+    dir_vects = Mat(2, tmp_dirs.cols, CV_64F); // TODO check
     for(int i=0; i<tmp_dirs.cols; ++i) {
       dir_vects.at<double>(0, i) = cos(tmp_dirs.at<double>(0, i));
       dir_vects.at<double>(1, i) = sin(tmp_dirs.at<double>(0, i));
@@ -32,7 +32,9 @@ namespace eh_sim {
 
   }
 
-  Grid_Cell::~Grid_Cell() {}
+  Grid_Cell::~Grid_Cell() {
+    cout << "Grid_Cell 析构函数被调用" << "\n";
+  }
 
   void Grid_Cell::set_lambda(const double * lambda_array,  int size) {
     for(int i=0; i<size; ++i)
@@ -48,6 +50,7 @@ namespace eh_sim {
   void Grid_Cell::gc_multi_init() {
     if (USE_CURRENT_W == 1) {
       //加载序列化的数据
+      cout << "不应该执行的代码" << "\n";
       vector<struct gc> serialized_gcs;
       int serialized_gc_ncells;
       gcs = serialized_gcs;
@@ -63,11 +66,12 @@ namespace eh_sim {
     } else {
       gc_w_histroy = Mat::ones(2000, NUM_GRIDCELLS, CV_64F);
 
+      gcs.resize(gcs.size() + NUM_GRIDCELLS);
       for (int i=0; i<NUM_GRIDCELLS; ++i) {
-        struct gc t_gc;
-        t_gc.w = 1.0 / NUM_GRIDCELLS;
+        struct gc * t_gc = &(*(gcs.end() - NUM_GRIDCELLS + i));
+        t_gc->w = 1.0 / NUM_GRIDCELLS;
         gc_weight_init(lambda[i], t_gc);
-        gcs.push_back(t_gc);
+        //gcs.push_back(t_gc);
       }
     }
   }
@@ -78,7 +82,7 @@ namespace eh_sim {
     }
   }
 
-  void Grid_Cell::gc_weight_init(double lambda, struct gc & gc_item) {
+  void Grid_Cell::gc_weight_init(double lambda, struct gc * gc_item) {
     int ncells = gc_ncells;
     int a      = GC_A;
     double beta;
@@ -88,9 +92,9 @@ namespace eh_sim {
 
     //初始化s
     srand(time(NULL));
-    gc_item.s = Mat::zeros(1, ncells, CV_64F);
+    gc_item->s = Mat::zeros(1, ncells, CV_64F);
     for(int i=0; i<ncells; ++i) {
-      gc_item.s.at<double>(0, i) = rand() / RAND_MAX;
+      gc_item->s.at<double>(0, i) = rand() / RAND_MAX;
     }
 
     //初始化dir_vects
@@ -202,22 +206,22 @@ namespace eh_sim {
         value = value > w_sparse_thresh ? 0 : value;
         tmp.at<double>(0, j) = value;
       }
-      gc_item.W.push_back(tmp);
+      gc_item->W.push_back(tmp);
     }
 
     if (USE_PERIODIC_NETWORK == 1) {
-      gc_item.A = Mat::ones(1, cell_dists.size(), CV_64F);
+      gc_item->A = Mat::ones(1, cell_dists.size(), CV_64F);
     } else {
       double R = sqrt(ncells) / 2.0;
       double a0 = sqrt(ncells) / 32.0;
       double dr = sqrt(ncells) / 2.0;
-      gc_item.A = Mat::zeros(1, cell_dists.size(), CV_64F);
+      gc_item->A = Mat::zeros(1, cell_dists.size(), CV_64F);
       for (int i=0; i<cell_dists.size(); ++i) {
-        gc_item.A.at<double>(0, i) = exp((pow((cell_dists[i] - R + dr) / dr, 2) * a0 * -1));
+        gc_item->A.at<double>(0, i) = exp((pow((cell_dists[i] - R + dr) / dr, 2) * a0 * -1));
       }
       for (int i=0; i<cell_dists.size(); ++i) {
         if (cell_dists[i] < (R-dr))
-          gc_item.A.at<double>(0, i) = 1;
+          gc_item->A.at<double>(0, i) = 1;
       }
     }
 
@@ -302,8 +306,8 @@ namespace eh_sim {
 
     Mat x_sums, y_sums;
     for (int i=0; i<temp_pc_activity.cols; ++i) {
-      x_sums.push_back(cv::sum(temp_pc_activity.colRange(i, i+1)));
-      y_sums.push_back(cv::sum(temp_pc_activity.rowRange(i, i+1)));
+      x_sums.push_back(sum(temp_pc_activity.colRange(i, i+1))[0]);
+      y_sums.push_back(sum(temp_pc_activity.rowRange(i, i+1))[0]);
     }
     x_sums = x_sums.t();
     y_sums = y_sums.t();

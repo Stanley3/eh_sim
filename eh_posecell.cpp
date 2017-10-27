@@ -10,6 +10,8 @@ namespace eh_sim {
     PC_W_E_VAR = 1;
     PC_W_I_VAR = 2;
 
+    cout << "****new PoseCell****" << "\n";
+
     eh_create_posecell_weights(PC_W_EXCITE, PC_W_E_DIM, PC_W_E_VAR);
     eh_create_posecell_weights(PC_W_INHIB, PC_W_I_DIM, PC_W_I_VAR);
 
@@ -36,6 +38,10 @@ namespace eh_sim {
     int x_pc = floor(PC_DIM_XY / 2) + 1;
     int y_pc = floor(PC_DIM_XY / 2) + 1;
     pcs.at<double>(x_pc, y_pc) = 1;
+  }
+
+  PoseCell::~PoseCell() {
+    cout << "PoseCell 析构函数被调用\n";
   }
 
   void PoseCell::eh_create_posecell_weights(Mat &weight, int dim, double var) {

@@ -28,7 +28,6 @@ namespace eh_sim
     numvts     = 1;
     vt_repeat  = 0;
     vt_matched = 0;
-    vt_conflict_num = 0;
     vt_history.push_back(1);
 
     //struct eh_sim::td_visual_template template1;
@@ -39,19 +38,9 @@ namespace eh_sim
   Visual_Template_Match::~Visual_Template_Match()
   {
 
+    cout << "Visual_Template_Match 析构函数被调用\n";
   }
 
-
-  void Visual_Template_Match::clip_view_x_y(int &x, int &y)
-  {
-    //if (x < 0) x = 0;
-    //else if (x > TEMPLATE_X_SIZE - 1) x = TEMPLATE_X_SIZE - 1;
-    //else x = x;
-
-    //if (y < 0) y = 0;
-    //else if (y > TEMPLATE_Y_SIZE - 1) y = TEMPLATE_Y_SIZE - 1;
-    //else y = y;
-  }
 
   void Visual_Template_Match::set_depth_sum(int x_max, int y_max) {
     DEPTH_SUM = 255 * (x_max + 1) * (y_max + 1);
@@ -61,240 +50,22 @@ namespace eh_sim
     return templates[prev_vt_id];
   }
 
-  void Visual_Template_Match::convert_view_to_view_template()
-  {
-    //int column_sum_next = 0;
-    //current_view.clear();
-
-    //int sub_range_x = IMAGE_VT_X_RANGE_MAX - IMAGE_VT_X_RANGE_MIN;
-    //int sub_range_y = IMAGE_VT_Y_RANGE_MAX - IMAGE_VT_Y_RANGE_MIN;
-    //int x_block_size = sub_range_x / TEMPLATE_X_SIZE;
-    //int y_block_size = sub_range_y / TEMPLATE_Y_SIZE;
-    //int pos;
-    //for (int y_block = IMAGE_VT_Y_RANGE_MIN, y_block_count = 0; y_block_count < TEMPLATE_Y_SIZE; y_block += y_block_size, y_block_count++)
-    //{
-    //  for (int x_block = IMAGE_VT_X_RANGE_MIN, x_block_count = 0; x_block_count < TEMPLATE_X_SIZE; x_block += x_block_size, x_block_count++)
-    //  {
-    //    for (int x = x_block; x < (x_block + x_block_size); x++)
-    //    {
-    //      for (int y = y_block; y < (y_block + y_block_size); y++)
-    //      {
-    //        pos = (x + y*IMAGE_WIDTH) * 3;
-    //        current_view[column_sum_next] += ((double)(view_rgb[pos]) + (double)(view_rgb[pos + 1]) + (double)(view_rgb[pos + 2]));
-    //      }
-    //    }
-    //    current_view[column_sum_next] /= (255.0*3.0);
-    //    current_view[column_sum_next] /= (x_block_size*y_block_size);
-    //    column_sum_next++;
-    //  }
-    //}
-
-    //// now do patch normalisation
-    //// make configurable
-    //// +- patch size on teh pixel, ie 4 will give a 9x9
-    //if (PATCH_NORMALISATION > 0)
-    //{
-    //  int patch_size = PATCH_NORMALISATION;
-    //  int patch_total = (patch_size * 2 + 1)*(patch_size * 2 + 1);
-    //  double patch_sum;
-    //  double patch_mean;
-    //  double patch_std;
-    //  int patch_x_clip;
-    //  int patch_y_clip;
-
-    //  // first make a copy of the view
-    //  std::vector<double> current_view_copy;
-    //  current_view_copy.resize(current_view.size());
-    //  for (int i = 0; i < current_view.size(); i++)
-    //    current_view_copy[i] = current_view[i];
-
-    //  // this code could be significantly optimimised ....
-    //  for (int x = 0; x < TEMPLATE_X_SIZE; x++)
-    //  {
-    //    for (int y = 0; y < TEMPLATE_Y_SIZE; y++)
-    //    {
-    //      patch_sum = 0;
-    //      for (int patch_x = x - patch_size; patch_x < x + patch_size + 1; patch_x++)
-    //      {
-    //        for (int patch_y = y - patch_size; patch_y < y + patch_size + 1; patch_y++)
-    //        {
-    //          patch_x_clip = patch_x;
-    //          patch_y_clip = patch_y;
-    //          clip_view_x_y(patch_x_clip, patch_y_clip);
-
-    //          patch_sum += current_view_copy[patch_x_clip + patch_y_clip*TEMPLATE_X_SIZE];
-    //        }
-    //      }
-    //      patch_mean = patch_sum / patch_total;
-
-    //      patch_sum = 0;
-    //      for (int patch_x = x - patch_size; patch_x < x + patch_size + 1; patch_x++)
-    //      {
-    //        for (int patch_y = y - patch_size; patch_y < y + patch_size + 1; patch_y++)
-    //        {
-    //          patch_x_clip = patch_x;
-    //          patch_y_clip = patch_y;
-    //          clip_view_x_y(patch_x_clip, patch_y_clip);
-
-    //          patch_sum += ((current_view_copy[patch_x_clip + patch_y_clip*TEMPLATE_X_SIZE] - patch_mean)*(current_view_copy[patch_x_clip + patch_y_clip*TEMPLATE_X_SIZE] - patch_mean));
-    //        }
-    //      }
-
-    //      patch_std = sqrt(patch_sum / patch_total);
-
-    //      if (patch_std < MIN_PATCH_NORMALISATION_STD)
-    //        current_view[x + y*TEMPLATE_X_SIZE] = 0.5;
-    //      else
-    //        current_view[x + y*TEMPLATE_X_SIZE] = max((double)0, min(1.0, (current_view_copy[x + y*TEMPLATE_X_SIZE] - patch_mean) / patch_std));
-    //    }
-    //  }
-    //}
-  }
-
-  // compares raw values not view templates
-  double Visual_Template_Match::compare_views(double *vt1, double *vt2, int size)
-  {
-    double cdiff = 0;
-
-    for (int index = 0; index < size; index++)
-    {
-      cdiff += abs(vt1[index] - vt2[index]);
-    }
-
-    cdiff /= (double)(size);
-
-    return cdiff;
-  }
-
-  // create and add a visual template to the collection
-  int Visual_Template_Match::create_template(double x_pc, double y_pc, double th_pc)
-  {
-    //templates.resize(templates.size() + 1);
-    //Visual_Template * new_template = &(*(templates.end() - 1));
-
-    //new_template->id = templates.size() - 1;
-    //double * column_sum_ptr = &current_view[0];
-    //new_template->column_sum.reserve(TEMPLATE_SIZE);
-    //for (int i = 0; i < TEMPLATE_SIZE; i++)
-    //  new_template->column_sum.push_back(*(column_sum_ptr++));
-
-    //new_template->x_pc = x_pc;
-    //new_template->y_pc = y_pc;
-    //new_template->th_pc = th_pc;
-    //new_template->decay = VT_ACTIVE_DECAY;
-
-    return templates.size() - 1;
-  }
-
-  // compare a visual template to all the stored templates, allowing for 
-  // slen pixel shifts in each direction
-  // returns the matching template and the MSE
-  void Visual_Template_Match::compare(double &vt_err, unsigned int &vt_match_id)
-  {
-    //if (templates.size() == 0)
-    //{
-    //  vt_err = DBL_MAX;
-    //  vt_error = vt_err;
-    //  return;
-    //}
-
-    //double *column_sum = &current_view[0];
-    //double mindiff, cdiff;
-    //mindiff = DBL_MAX;
-
-    //vt_err = DBL_MAX;
-    //int min_template = 0;
-
-    //double *template_ptr;
-    //double *column_ptr;
-    //double *template_row_ptr;
-    //double *column_row_ptr;
-    //double *template_start_ptr;
-    //double *column_start_ptr;
-    //int row_size;
-    //int sub_row_size;
-    //double *column_end_ptr;
-    //Visual_Template vt;
-
-    //int offset;
-
-    //BOOST_FOREACH(vt, templates)
-    //{
-    //  // for each vt try matching the view at different offsets
-    //  // try to fast break based on error alrady great than previous errors
-    //  // handles 2d images shifting only in the x direction
-    //  // note I haven't tested on a 1d yet.
-    //  for (offset = 0; offset < VT_SHIFT_MATCH * 2 + 1; offset += VT_STEP_MATCH)
-    //  {
-    //    cdiff = 0;
-    //    template_start_ptr = &vt.column_sum[0] + offset;
-    //    column_start_ptr = &column_sum[0] + VT_SHIFT_MATCH;
-    //    row_size = TEMPLATE_X_SIZE;
-    //    column_end_ptr = &column_sum[0] + TEMPLATE_SIZE - VT_SHIFT_MATCH;
-    //    sub_row_size = TEMPLATE_X_SIZE - 2 * VT_SHIFT_MATCH;
-
-    //    for (column_row_ptr = column_start_ptr, template_row_ptr = template_start_ptr; column_row_ptr < column_end_ptr; column_row_ptr += row_size, template_row_ptr += row_size)
-    //    {
-    //      for (column_ptr = column_row_ptr, template_ptr = template_row_ptr; column_ptr < column_row_ptr + sub_row_size; column_ptr++, template_ptr++)
-    //      {
-    //        cdiff += abs(*column_ptr - *template_ptr);
-    //      }
-
-    //      // fast breaks
-    //      if (cdiff > mindiff)
-    //        break;
-    //    }
-
-    //    if (cdiff < mindiff)
-    //    {
-    //      mindiff = cdiff;
-    //      min_template = vt.id;
-    //    }
-    //  }
-
-    //}
-
-    //vt_err = mindiff / (double)(TEMPLATE_SIZE - 2 * VT_SHIFT_MATCH*TEMPLATE_Y_SIZE);
-    //vt_match_id = min_template;
-
-    //vt_error = vt_err;
-  }
-
-  double Visual_Template_Match::compare_two(int vt_id1, int vt_id2)
-  {
-    double cdiff = 0;
-    //int index;
-    //Visual_Template * template1, *template2;
-
-    //template1 = &templates[vt_id1];
-    //template2 = &templates[vt_id2];
-
-
-    //for (index = 0; index < TEMPLATE_SIZE; index++)
-    //{
-    //  cdiff += abs(template2->column_sum[index] - template1->column_sum[index]);
-    //}
-
-    //// cdiff = sum(cdiff) / (cwl - offset);
-    //cdiff /= (double)(TEMPLATE_SIZE);
-
-    return cdiff;
-  }
-
   int Visual_Template_Match::image_compare_with_template(Mat gray_image, Mat depth_image, double x, double y, double th) {
     int vt_id;
-    Mat sub_gray_image = gray_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
-      clone().
+    Mat sub_gray_image = Mat();
+    gray_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
       colRange(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX).
-      clone();
-    Mat sub_depth_image = depth_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
-      clone().
+      copyTo(sub_gray_image);
+
+    Mat sub_depth_image = Mat();
+    depth_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
       colRange(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX).
-      clone();
+      copyTo(sub_depth_image);
 
     vector<double> gray_image_x_sums, depth_image_x_sums;
-    reduce(sub_gray_image, gray_image_x_sums, 0, CV_REDUCE_SUM);
-    reduce(sub_depth_image, depth_image_x_sums, 0, CV_REDUCE_SUM);
+    // TODO check
+    reduce(sub_gray_image, gray_image_x_sums, 0, CV_REDUCE_SUM, CV_64F);
+    reduce(sub_depth_image, depth_image_x_sums, 0, CV_REDUCE_SUM, CV_64F);
     double gray_image_sums  = cv::sum(gray_image_x_sums)[0];
     //double depth_image_sums = accumulate(depth_image_x_sums.begin(), depth_image_x_sums.end(), 0);
 
@@ -326,17 +97,18 @@ namespace eh_sim
       numvts += 1;
       vt_repeat = 0;
       vt_matched = 0;
-      struct eh_sim::td_visual_template new_temp;
-      new_temp.id = numvts;
-      new_temp.rgb_column_sum = gray_image_x_sums;
-      new_temp.depth_column_sum = depth_image_x_sums;
-      new_temp.decay = VT_ACTIVE_DECAY;
-      new_temp.gc_x = x;
-      new_temp.gc_y = y;
-      new_temp.hdc  = th;
-      new_temp.first = 1;
-      new_temp.numexp = 0;
-      templates.push_back(new_temp);
+      templates.resize(templates.size() + 1);
+      struct eh_sim::td_visual_template *new_temp = &(*(templates.end() - 1));
+      new_temp->id = numvts;
+      new_temp->rgb_column_sum = gray_image_x_sums;
+      new_temp->depth_column_sum = depth_image_x_sums;
+      new_temp->decay = VT_ACTIVE_DECAY;
+      new_temp->gc_x = x;
+      new_temp->gc_y = y;
+      new_temp->hdc  = th;
+      new_temp->first = 1;
+      new_temp->numexp = 0;
+      //templates.push_back(new_temp);
       vt_id = numvts - 1;
     } else {
       vt_id = diff_id;
@@ -358,9 +130,13 @@ namespace eh_sim
   void Visual_Template_Match::rs_compare_segments(vd mono_seg1, vd depth_seg1, vd mono_seg2, vd depth_seg2, int slen, int cwl, vd & result) {
     int mindiff   = pow(10 , 8);
     int minoffset = 0;
+
+    Mat mono_diff = Mat();
+    Mat depth_diff = Mat();
+
     for (int offset=0; offset<=slen; ++offset) {
-      Mat mono_diff = abs(Mat(mono_seg1).rowRange(0+offset, cwl) - Mat(mono_seg2).rowRange(0, cwl-offset)).t();
-      Mat depth_diff = abs(Mat(depth_seg1).rowRange(0+offset, cwl) - Mat(depth_seg2).rowRange(0, cwl-offset)).t();
+      ((Mat)(abs(Mat(mono_seg1).rowRange(0+offset, cwl) - Mat(mono_seg2).rowRange(0, cwl-offset)).t())).copyTo(mono_diff);
+      ((Mat)(abs(Mat(depth_seg1).rowRange(0+offset, cwl) - Mat(depth_seg2).rowRange(0, cwl-offset)).t())).copyTo(depth_diff);
       double cdiff = (cv::sum(mono_diff)[0] * VT_RGB_WEIGHT +
         cv::sum(depth_diff)[0] * VT_DEPTH_WEIGHT) / (cwl - offset);
 
@@ -371,8 +147,8 @@ namespace eh_sim
     }
 
     for (int offset=1; offset<=slen; ++offset) {
-      Mat mono_diff = abs(Mat(mono_seg1).rowRange(0, cwl-offset) - Mat(mono_seg2).rowRange(0+offset, cwl)).t();
-      Mat depth_diff = abs(Mat(depth_seg1).rowRange(0, cwl-offset) - Mat(depth_seg2).rowRange(0+offset, cwl)).t();
+      ((Mat)(abs(Mat(mono_seg1).rowRange(0, cwl-offset) - Mat(mono_seg2).rowRange(0+offset, cwl)).t())).copyTo(mono_diff);
+      ((Mat)(abs(Mat(depth_seg1).rowRange(0, cwl-offset) - Mat(depth_seg2).rowRange(0+offset, cwl)).t())).copyTo(depth_diff);
       double cdiff = (cv::sum(mono_diff)[0] * VT_RGB_WEIGHT +
           cv::sum(depth_diff)[0] * VT_DEPTH_WEIGHT) / (cwl - offset);
 
@@ -384,11 +160,6 @@ namespace eh_sim
 
     result.push_back(minoffset);
     result.push_back(mindiff);
-  }
-
-  void Visual_Template_Match::do_log(int frame, double *column_sum, int IMAGE_WIDTH)
-  {
-
   }
 
   void Visual_Template_Match::init_template_one(struct td_visual_template& temp_one) {

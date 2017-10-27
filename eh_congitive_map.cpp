@@ -11,41 +11,51 @@ namespace eh_sim {
     EXP_DELTA_PC_THRESHOLD = 3;
     EXP_CORRECTION = 0.5;
     EXP_LOOPS = 100;
+    VT_REPEAT = 10;
+    vt_conflict_num = 0;
 
     exp_history.push_back(1);
-    struct ex_map first_map;
-    first_map.gc_x = vtm->get_gc_x(0);
-    first_map.gc_y = vtm->get_gc_y(0);
-    first_map.hdc  = vtm->get_hdc(0);
-    first_map.x_m  = 0;
-    first_map.y_m  = 0;
-    first_map.facing_rad = 0;
-    first_map.vt_id = 0;
-    first_map.numlinks = 0;
-    exps.push_back(first_map);
+    exps.resize(exps.size() + 1);
+    struct ex_map *first_map = &(*(exps.end()-1));
+    first_map->gc_x = vtm->get_gc_x(0);
+    first_map->gc_y = vtm->get_gc_y(0);
+    first_map->hdc  = vtm->get_hdc(0);
+    first_map->x_m  = 0;
+    first_map->y_m  = 0;
+    first_map->facing_rad = 0;
+    first_map->vt_id = 0;
+    first_map->numlinks = 0;
+    //exps.push_back(first_map);
+  }
+
+  Cognitive_Map::~Cognitive_Map() {
+    cout << "Cognitive_Map 析构函数被调用\n";
   }
 
   void Cognitive_Map::Create_New_Exp(int curr_exp_id, int new_exp_id, double gc_x, double gc_y, double hdc, int vt_id) {
     exps[curr_exp_id].numlinks += 1;
-    struct exp_link tmp_link;
-    tmp_link.d = sqrt(pow(accum_delta_x, 2) + pow(accum_delta_y, 2));
-    tmp_link.exp_id = new_exp_id;
-    tmp_link.heading_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, atan2(accum_delta_y, accum_delta_x));
-    tmp_link.facing_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, accum_delta_facing);
-    exps[curr_exp_id].links.push_back(tmp_link);
+    exps[curr_exp_id].links.resize(exps[curr_exp_id].links.size() + 1);
+    struct exp_link *tmp_link = &(*(exps[curr_exp_id].links.end() - 1));
+    tmp_link->d = sqrt(pow(accum_delta_x, 2) + pow(accum_delta_y, 2));
+    tmp_link->exp_id = new_exp_id;
+    tmp_link->heading_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, atan2(accum_delta_y, accum_delta_x));
+    tmp_link->facing_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, accum_delta_facing);
+    //exps[curr_exp_id].links.push_back(tmp_link);
 
-    struct ex_map new_exp;
-    new_exp.gc_x = gc_x;
-    new_exp.gc_y = gc_y;
-    new_exp.hdc  = hdc;
-    new_exp.vt_id = vt_id;
-    new_exp.x_m   = exps[curr_exp_id].x_m + accum_delta_x;
-    new_exp.y_m   = exps[curr_exp_id].y_m + accum_delta_y;
-    new_exp.facing_rad = clip_rad_180(accum_delta_facing);
-    new_exp.numlinks = 0;
+    exps.resize(exps.size() + 1);
+    struct ex_map *new_exp = &(*(exps.end()-1));
+    new_exp->gc_x = gc_x;
+    new_exp->gc_y = gc_y;
+    new_exp->hdc  = hdc;
+    new_exp->vt_id = vt_id;
+    new_exp->x_m   = exps[curr_exp_id].x_m + accum_delta_x;
+    new_exp->y_m   = exps[curr_exp_id].y_m + accum_delta_y;
+    new_exp->facing_rad = clip_rad_180(accum_delta_facing);
+    new_exp->numlinks = 0;
+    new_exp->links = vector<struct exp_link>();
     //vector<struct ex_map>::iterator it = exps.begin();
     //exps.insert(it + new_exp_id, new_exp);
-    exps.push_back(new_exp);
+    //exps.push_back(new_exp);
 
     vtm->set_numexp(vt_id, vtm->get_numexp(vt_id) + 1);
     vtm->add_exp_to_vt(vt_id, new_exp_id);
@@ -110,12 +120,13 @@ namespace eh_sim {
           if (!link_exists) {
             exps[curr_exp_id].numlinks += 1;
 
-            struct exp_link tmp_link;
-            tmp_link.exp_id = matched_exp_id;
-            tmp_link.d = sqrt(pow(accum_delta_x, 2) + pow(accum_delta_y, 2));
-            tmp_link.heading_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, atan2(accum_delta_y, accum_delta_x));
-            tmp_link.facing_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, accum_delta_facing);
-            exps[curr_exp_id].links.insert(exps[curr_exp_id].links.begin() + exps[curr_exp_id].numlinks, tmp_link);
+            exps[curr_exp_id].links.resize(exps[curr_exp_id].links.size() + 1);
+            struct exp_link *tmp_link = &(*(exps[curr_exp_id].links.end() - 1));
+            tmp_link->exp_id = matched_exp_id;
+            tmp_link->d = sqrt(pow(accum_delta_x, 2) + pow(accum_delta_y, 2));
+            tmp_link->heading_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, atan2(accum_delta_y, accum_delta_x));
+            tmp_link->facing_rad = Get_Signed_Delta_Rad(exps[curr_exp_id].facing_rad, accum_delta_facing);
+            //exps[curr_exp_id].links.insert(exps[curr_exp_id].links.begin() + exps[curr_exp_id].numlinks, tmp_link);
           } else {
             ++EXP_DELTA_PC_THRESHOLD;
           }

@@ -183,7 +183,7 @@ namespace eh_sim
       double VT_RGB_WEIGHT;
       double VT_DEPTH_WEIGHT;
       double DEPTH_SUM; //初始化
-      double VT_REPEAT;//10
+      //double VT_REPEAT;//10
       int IMAGE_WIDTH; //x = 320
       int IMAGE_HEIGHT; //y = 240
       int GC_NEURONSHEET_X;//40
@@ -203,7 +203,6 @@ namespace eh_sim
       std::vector<int> vt_history;
       int vt_repeat;//0
       int vt_matched;//0
-      int vt_conflict_num; //0
 
       //const unsigned char *view_rgb;
 

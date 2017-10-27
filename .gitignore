@@ -8,5 +8,6 @@ main
 **/*.cmake
 CMakeCache.txt
 test_m*
+*.dSYM/
 Makefile
 t_main
