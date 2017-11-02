@@ -16,11 +16,12 @@ eh_sim::Cognitive_Map * cg_map;
 eh_sim::PoseCell * pc;
 
 void handler(int sig) {
-  void *array[20];
+  void *array[100];
   size_t size;
 
   // get void*'s for all entries on the stack
-  size = backtrace(array, 20);
+  size = backtrace(array, 100);
+  cout << endl;
 
   // print out all the frames to stderr
   fprintf(stderr, "Error: signal %d:\n", sig);
@@ -88,7 +89,7 @@ int main() {
     file_path = "/Users/jo/Documents/workspace/eh_slam_nips_20140523-11/data_set/20130806_RCT_2/";
     vt_match->set_rgb_weight(0.85);
     vt_match->set_depth_weight(0.15);
-    vt_match->set_y_range(0, 119);
+    vt_match->set_y_range(0, 120);
 
     gc_multi->set_gc_alpha(25);
 
@@ -101,7 +102,7 @@ int main() {
     file_path = "/Users/jo/Documents/workspace/eh_slam_nips_20140523-11/data_set/20130903_cw_02/";
     vt_match->set_rgb_weight(0.9);
     vt_match->set_depth_weight(0.1);
-    vt_match->set_y_range(0, vt_match->get_image_height() - 1);
+    vt_match->set_y_range(0, vt_match->get_image_height());
 
     gc_multi->set_gc_alpha(1);
 
@@ -112,7 +113,7 @@ int main() {
       vt_match->set_match_threshold(0.065);
   }
 
-  vt_match->set_x_range(0, vt_match->get_image_width() - 1);
+  vt_match->set_x_range(0, vt_match->get_image_width());
   vt_match->set_depth_sum(vt_match->get_x_range_max(), vt_match->get_y_range_max());
   struct eh_sim::td_visual_template first_temp;
   vt_match->init_template_one(first_temp);
@@ -177,7 +178,7 @@ int main() {
       gc_multi->gc_get_pos_xy(&pc_x, &pc_y);
       cout << "gc_get_pos_xy done" << "\n";
       int vt_id = vt_match->image_compare_with_template(gray_image, depth_image, pc_x, pc_y, head_direction);
-      cout << "image_compare_with_template done" << "\n";
+      /*cout << "image_compare_with_template done" << "\n";
       //eh_posecell_iteration(vt_id, vtrans, hd);
       //eh_gridcell_reset(pc_activity,vt_id,pc_x,pc_y);
       //eh_cognitive_map(vt_id,vtrans,vrot,pc_x,pc_y,hd);
@@ -189,11 +190,11 @@ int main() {
       eh_gridcell_reset(vt_id, pc_x, pc_y);
       cout << "eh_gridcell_reset done" << "\n"; // after 1
       cg_map->start_cognitive_map(vt_id, vtrans, vrot, pc_x, pc_y, head_direction);
-      cout << "start_cognitive_map done" << "\n";
+      cout << "start_cognitive_map done" << "\n";*/
       vt_match->set_prev_vt_id(vt_id);
       cout << "set_prev_vt_id done" << "\n";
       //pc_recording;
-      //gc_plot;
+      //gc_plot; 
     }
   }
 

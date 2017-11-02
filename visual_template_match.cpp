@@ -52,27 +52,48 @@ namespace eh_sim
 
   int Visual_Template_Match::image_compare_with_template(Mat gray_image, Mat depth_image, double x, double y, double th) {
     int vt_id;
-    Mat sub_gray_image = Mat();
-    gray_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
-      colRange(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX).
-      copyTo(sub_gray_image);
 
-    Mat sub_depth_image = Mat();
-    depth_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
-      colRange(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX).
-      copyTo(sub_depth_image);
+    cout << "begin copyTo \n";
+    cout << "gray_image.size() = " << gray_image.size() << "\n";
+    cout << "depth_image.size() = " << depth_image.size() << "\n";
+    printf("(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX) = (%d, %d)\n", IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX);
+    printf("(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX) = (%d, %d)\n", IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX);
+
+    Mat sub_gray_image;
+    //gray_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
+    //  colRange(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX).
+    //  copyTo(sub_gray_image);
+    sub_gray_image = gray_image(Range(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX),
+        Range(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX));
+      //copyTo(sub_gray_image);
+
+    Mat sub_depth_image;
+    //depth_image.rowRange(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX).
+    //  colRange(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX).
+    //  copyTo(sub_depth_image);
+    sub_depth_image = depth_image(Range(IMAGE_VT_Y_RANGE_MIN, IMAGE_VT_Y_RANGE_MAX),
+        Range(IMAGE_VT_X_RANGE_MIN, IMAGE_VT_X_RANGE_MAX));
+      //copyTo(sub_depth_image);
+    cout << "after copyTo \n";
 
     vector<double> gray_image_x_sums, depth_image_x_sums;
     // TODO check
-    reduce(sub_gray_image, gray_image_x_sums, 0, CV_REDUCE_SUM, CV_64F);
-    reduce(sub_depth_image, depth_image_x_sums, 0, CV_REDUCE_SUM, CV_64F);
+    cout << "sub_gray_image = \n" << sub_gray_image << "\n";
+    cout << "sub_depth_image = \n" << sub_depth_image << "\n";
+    gray_image_x_sums.reserve(sub_gray_image.cols);
+    depth_image_x_sums.reserve(sub_depth_image.cols);
+    cout << "begin reduce \n";
+    reduce(sub_gray_image, gray_image_x_sums, 0, CV_REDUCE_SUM);
+    reduce(sub_depth_image, depth_image_x_sums, 0, CV_REDUCE_SUM);
+    cout << "after reduce \n";
     double gray_image_sums  = cv::sum(gray_image_x_sums)[0];
-    //double depth_image_sums = accumulate(depth_image_x_sums.begin(), depth_image_x_sums.end(), 0);
 
     for(int i=0; i<gray_image_x_sums.size(); ++i)
         gray_image_x_sums[i] /= gray_image_sums;
     for(int i=0; i<depth_image_x_sums.size(); ++i)
         depth_image_x_sums[i] *= (4096.0/255.0/DEPTH_SUM);
+
+    cout << "two loop done!" << "\n";
 
     Mat min_offset = Mat::ones(numvts, 1, CV_64F);
     Mat min_diff   = Mat::ones(numvts, 1, CV_64F);
@@ -83,7 +104,9 @@ namespace eh_sim
         templates[i].decay = 0;
 
       vector<double> result;
+      cout << "before rs_compare_segments i = " << i << "\n";
       rs_compare_segments(gray_image_x_sums, depth_image_x_sums, templates[i].rgb_column_sum, templates[i].depth_column_sum, VT_SHIFT_MATCH, gray_image_x_sums.size(), result);
+      cout << "after rs_compare_segments i = " << i << "\n";
 
       min_offset.at<double>(i, 0) = result[0];
       min_diff.at<double>(i, 0)   = result[1];
@@ -131,14 +154,15 @@ namespace eh_sim
     int mindiff   = pow(10 , 8);
     int minoffset = 0;
 
-    Mat mono_diff = Mat();
-    Mat depth_diff = Mat();
-
     for (int offset=0; offset<=slen; ++offset) {
-      ((Mat)(abs(Mat(mono_seg1).rowRange(0+offset, cwl) - Mat(mono_seg2).rowRange(0, cwl-offset)).t())).copyTo(mono_diff);
-      ((Mat)(abs(Mat(depth_seg1).rowRange(0+offset, cwl) - Mat(depth_seg2).rowRange(0, cwl-offset)).t())).copyTo(depth_diff);
-      double cdiff = (cv::sum(mono_diff)[0] * VT_RGB_WEIGHT +
-        cv::sum(depth_diff)[0] * VT_DEPTH_WEIGHT) / (cwl - offset);
+      double mono_diff_sum = 0;
+      double depth_diff_sum = 0;
+      for (int i=offset; i<cwl; ++i) {
+        mono_diff_sum  += abs(mono_seg1[i]  - mono_seg2[i-offset]);
+        depth_diff_sum += abs(depth_seg1[i] - depth_seg2[i-offset]);
+      }
+      double cdiff = (mono_diff_sum * VT_RGB_WEIGHT +
+        depth_diff_sum * VT_DEPTH_WEIGHT) / (cwl - offset);
 
       if (cdiff < mindiff) {
         mindiff = cdiff;
@@ -147,10 +171,14 @@ namespace eh_sim
     }
 
     for (int offset=1; offset<=slen; ++offset) {
-      ((Mat)(abs(Mat(mono_seg1).rowRange(0, cwl-offset) - Mat(mono_seg2).rowRange(0+offset, cwl)).t())).copyTo(mono_diff);
-      ((Mat)(abs(Mat(depth_seg1).rowRange(0, cwl-offset) - Mat(depth_seg2).rowRange(0+offset, cwl)).t())).copyTo(depth_diff);
-      double cdiff = (cv::sum(mono_diff)[0] * VT_RGB_WEIGHT +
-          cv::sum(depth_diff)[0] * VT_DEPTH_WEIGHT) / (cwl - offset);
+      double mono_diff_sum = 0;
+      double depth_diff_sum = 0;
+      for (int i=offset; i<cwl; ++i) {
+        mono_diff_sum  += abs(mono_seg1[i]  - mono_seg2[i-offset]);
+        depth_diff_sum += abs(depth_seg1[i] - depth_seg2[i-offset]);
+      }
+      double cdiff = (mono_diff_sum * VT_RGB_WEIGHT +
+          depth_diff_sum * VT_DEPTH_WEIGHT) / (cwl - offset);
 
       if (cdiff < mindiff) {
         mindiff = cdiff;
