@@ -78,8 +78,8 @@ namespace eh_sim
 
     vector<double> gray_image_x_sums, depth_image_x_sums;
     // TODO check
-    cout << "sub_gray_image = \n" << sub_gray_image << "\n";
-    cout << "sub_depth_image = \n" << sub_depth_image << "\n";
+    cout << "sub_gray_image.size() = \n" << sub_gray_image.size() << "\n";
+    cout << "sub_depth_image.size() = \n" << sub_depth_image.size() << "\n";
     gray_image_x_sums.reserve(sub_gray_image.cols);
     depth_image_x_sums.reserve(sub_depth_image.cols);
     cout << "begin reduce \n";
@@ -98,13 +98,15 @@ namespace eh_sim
     Mat min_offset = Mat::ones(numvts, 1, CV_64F);
     Mat min_diff   = Mat::ones(numvts, 1, CV_64F);
 
+    vector<double> result;
+    result.reserve(2);
     for (int i=0; i<numvts; ++i) {
       templates[i].decay -= VT_GLOBAL_DECAY;
       if (templates[i].decay < 0)
         templates[i].decay = 0;
 
-      vector<double> result;
       cout << "before rs_compare_segments i = " << i << "\n";
+      result.clear();
       rs_compare_segments(gray_image_x_sums, depth_image_x_sums, templates[i].rgb_column_sum, templates[i].depth_column_sum, VT_SHIFT_MATCH, gray_image_x_sums.size(), result);
       cout << "after rs_compare_segments i = " << i << "\n";
 
