@@ -83,7 +83,7 @@ void get_depth_image(string image_path, Mat & image) {
  */
 void interpolate(int img_count, double recording_dt, int interpl, vector<odometry_raw> infos, Mat& pos, Mat& hd) {
 
-  pos = Mat::zeros(3, (img_count - 1) * interpl + 1, CV_64F);
+  ((Mat)Mat::zeros(3, (img_count - 1) * interpl + 1, CV_64F)).copyTo(pos);
   Mat hd_t  = Mat::zeros(1, (img_count - 1) * interpl + 1, CV_64F);
 
   for (int i=0; i<hd_t.cols; ++i) {
@@ -106,7 +106,7 @@ void interpolate(int img_count, double recording_dt, int interpl, vector<odometr
   pos.at<double>(0, (img_count - 1) * interpl) = infos[last].pos_x_raw;
   pos.at<double>(1, (img_count - 1) * interpl) = infos[last].pos_y_raw;
   pos.at<double>(2, (img_count - 1) * interpl) = recording_dt *(img_count - 1);
-  hd = hd_t.t();
+  ((Mat)hd_t.t()).copyTo(hd);
 }
 
 void meshgrid(const vector<double> &xgv, const vector<double> &ygv, cv::Mat &X, cv::Mat &Y) {
@@ -132,7 +132,7 @@ void shiftCol(Mat& out, Mat in, int numRight){
   int ncols = in.cols;
   int nrows = in.rows;
 
-  out = Mat::zeros(in.size(), in.type());
+  ((Mat)Mat::zeros(in.size(), in.type())).copyTo(out);
 
   numRight = numRight%ncols;
   if(numRight < 0)
@@ -147,7 +147,7 @@ void shiftRow(Mat& out, Mat in, int numRight){
   int nrows = in.rows;
   numRight = numRight%nrows;
 
-  out = Mat::zeros(in.size(), in.type());
+  ((Mat)Mat::zeros(in.size(), in.type())).copyTo(out);
 
   if(numRight == 0){
     in.copyTo(out);
