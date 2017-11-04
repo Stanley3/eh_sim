@@ -2,6 +2,7 @@ tags
 *.o
 *.swp
 main
+t_main
 **/CMakeFiles/
 */Makefile
 */*.a
@@ -9,4 +10,3 @@ main
 CMakeCache.txt
 test_m*
 Makefile
-t_main

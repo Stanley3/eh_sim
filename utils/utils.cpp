@@ -49,10 +49,10 @@ void get_all_infos(const vector<string> &names, vector<odometry_raw>& infos) {
   for (int i=0; i<names.size(); ++i) {
     split(result, names[i], is_any_of("_"));
 
-    odo.pos_x_raw = stod(result[1], NULL);
-    odo.pos_y_raw = stod(result[2], NULL);
+    odo.pos_x_raw = strtod(result[1].c_str(), NULL);
+    odo.pos_y_raw = strtod(result[2].c_str(), NULL);
     ierase_all(result[3], ".jpg");
-    odo.head_direction_raw = stod(result[3], NULL);
+    odo.head_direction_raw = strtod(result[3].c_str(), NULL);
 
     infos.push_back(odo);
 
