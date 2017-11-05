@@ -282,9 +282,9 @@ namespace eh_sim {
     int GC_CEllS_TO_AVG = 3;
     vector<int> GC_AVG_XY_WRAP;
 
-    for (int j=GC_NEURONSHEET_X-GC_CEllS_TO_AVG+1; j<=GC_NEURONSHEET_X; ++j)
+    for (int j=GC_NEURONSHEET_X-GC_CEllS_TO_AVG+1; j<GC_NEURONSHEET_X; ++j)
       GC_AVG_XY_WRAP.push_back(j);
-    for (int j=1; j<=GC_NEURONSHEET_X; ++j)
+    for (int j=1; j<GC_NEURONSHEET_X; ++j)
       GC_AVG_XY_WRAP.push_back(j);
     for (int j=1; j<=GC_CEllS_TO_AVG; ++j)
       GC_AVG_XY_WRAP.push_back(j);
@@ -295,7 +295,7 @@ namespace eh_sim {
     int x, y;
     ind2sub(max_index, GC_NEURONSHEET_X, GC_NEURONSHEET_X, &y, &x);// 需测试
     pc_activity = pc_activity.reshape(0, GC_NEURONSHEET_X).t();
-    Mat temp_pc_activity = Mat::ones(GC_NEURONSHEET_X, GC_NEURONSHEET_X, CV_64F);
+    Mat temp_pc_activity = Mat::zeros(GC_NEURONSHEET_X, GC_NEURONSHEET_X, CV_64F);
 
     for (int i=x; i<=x+GC_CEllS_TO_AVG*2; ++i) {
       for (int j=x; j<=x+GC_CEllS_TO_AVG*2; ++j) {
@@ -304,36 +304,28 @@ namespace eh_sim {
       }
     }
 
-    Mat x_sums, y_sums;
+    vector<double> x_sums, y_sums;
     for (int i=0; i<temp_pc_activity.cols; ++i) {
       x_sums.push_back(sum(temp_pc_activity.colRange(i, i+1))[0]);
       y_sums.push_back(sum(temp_pc_activity.rowRange(i, i+1))[0]);
     }
-    x_sums = x_sums.t();
-    y_sums = y_sums.t();
-
-    assert(x_sums.rows == 1);
-    assert(x_sums.cols == gc_sin_lookup.size());
-    assert(x_sums.cols == gc_cos_lookup.size());
-    assert(y_sums.rows == 1);
-    assert(y_sums.cols == gc_sin_lookup.size());
-    assert(y_sums.cols == gc_cos_lookup.size());
 
     double x_sin_sums = 0;
     double x_cos_sums = 0;
     double y_sin_sums = 0;
     double y_cos_sums = 0;
 
-    for (int i=0; i<x_sums.cols; ++i) {
-      x_sin_sums += x_sums.at<double>(0, i) * gc_sin_lookup[i];
-      x_cos_sums += x_sums.at<double>(0, i) * gc_cos_lookup[i];
-      y_sin_sums += y_sums.at<double>(0, i) * gc_sin_lookup[i];
-      y_cos_sums += y_sums.at<double>(0, i) * gc_cos_lookup[i];
+    for (int i=0; i<x_sums.size(); ++i) {
+      x_sin_sums += x_sums[i] * gc_sin_lookup[i];
+      x_cos_sums += x_sums[i] * gc_cos_lookup[i];
+      y_sin_sums += y_sums[i] * gc_sin_lookup[i];
+      y_cos_sums += y_sums[i] * gc_cos_lookup[i];
     }
 
     double t = atan2(x_sin_sums, x_cos_sums);
     *X = fmod(t * GC_NEURONSHEET_X / (2 * M_PI), GC_NEURONSHEET_X);
     *Y = fmod(atan2(y_sin_sums, y_cos_sums) * GC_NEURONSHEET_X / (2 * M_PI), GC_NEURONSHEET_X);
+    cout << "gc_get_pos_xy done!" << endl;
   }
 
   void Grid_Cell::gc_pa_generation(Mat & s, const Mat W, const Mat A) {

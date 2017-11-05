@@ -114,6 +114,8 @@ namespace eh_sim
       min_diff.at<double>(i, 0)   = result[1];
     }
 
+    cout << "min_diff = \n" << min_diff << "\n";
+
     double diff, max_diff;
     int diff_id, max_diff_id;
     minMaxIdx(min_diff, &diff, &max_diff, &diff_id, &max_diff_id);

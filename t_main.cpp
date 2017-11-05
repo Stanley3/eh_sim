@@ -60,8 +60,8 @@ void eh_gridcell_reset(int vt_id, double gc_x, double gc_y) {
 
 
 int main() {
-  signal(SIGSEGV, handler);
-  signal(SIGABRT, handler);
+  //signal(SIGSEGV, handler);
+  //signal(SIGABRT, handler);
   string nips_data_set;
   string running_mode;
   string file_path;
@@ -86,7 +86,7 @@ int main() {
   gc_multi->set_lambda(array, sizeof(array)/sizeof(double));
 
   if (((string)"IJCAI").compare(nips_data_set) == 0) {
-    file_path = "/Users/jo/Documents/workspace/eh_slam_nips_20140523-11/data_set/20130806_RCT_2/";
+    file_path = "/media/E/eh_slam_nips_20140523-11/data_set/data_set/20130806_RCT_2/";
     vt_match->set_rgb_weight(0.85);
     vt_match->set_depth_weight(0.15);
     vt_match->set_y_range(0, 120);
@@ -99,7 +99,7 @@ int main() {
     else
       vt_match->set_match_threshold(0.065);
   } else if (((string)"ICRA").compare(nips_data_set) == 0) {
-    file_path = "/Users/jo/Documents/workspace/eh_slam_nips_20140523-11/data_set/20130903_cw_02/";
+    file_path = "/media/E/eh_slam_nips_20140523-11/data_set/20130903_cw_02/";
     vt_match->set_rgb_weight(0.9);
     vt_match->set_depth_weight(0.1);
     vt_match->set_y_range(0, vt_match->get_image_height());
@@ -178,11 +178,11 @@ int main() {
       gc_multi->gc_get_pos_xy(&pc_x, &pc_y);
       cout << "gc_get_pos_xy done" << "\n";
       int vt_id = vt_match->image_compare_with_template(gray_image, depth_image, pc_x, pc_y, head_direction);
-      /*cout << "image_compare_with_template done" << "\n";
+      cout << "image_compare_with_template done" << "\n";
       //eh_posecell_iteration(vt_id, vtrans, hd);
       //eh_gridcell_reset(pc_activity,vt_id,pc_x,pc_y);
       //eh_cognitive_map(vt_id,vtrans,vrot,pc_x,pc_y,hd);
-      // pc_activity not use in eh_gridcell_reset;
+      //pc_activity not use in eh_gridcell_reset;
       pc = new eh_sim::PoseCell();
       cout << "New PoseCell done" << "\n";
       pc->eh_posecell_iteration(vt_id, vtrans, vrot, gc_multi->get_gc_alpha());
@@ -190,7 +190,7 @@ int main() {
       eh_gridcell_reset(vt_id, pc_x, pc_y);
       cout << "eh_gridcell_reset done" << "\n"; // after 1
       cg_map->start_cognitive_map(vt_id, vtrans, vrot, pc_x, pc_y, head_direction);
-      cout << "start_cognitive_map done" << "\n";*/
+      cout << "start_cognitive_map done" << "\n";
       vt_match->set_prev_vt_id(vt_id);
       cout << "set_prev_vt_id done" << "\n";
       //pc_recording;

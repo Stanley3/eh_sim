@@ -76,7 +76,7 @@ namespace eh_sim {
       Create_New_Exp(curr_exp_id, numexps-1, gc_x, gc_y, hdc, vt_id);
 
       prev_exp_id = curr_exp_id;
-      curr_exp_id = numexps;
+      curr_exp_id = numexps - 1;
 
       accum_delta_x = 0;
       accum_delta_y = 0;
@@ -131,6 +131,7 @@ namespace eh_sim {
             ++EXP_DELTA_PC_THRESHOLD;
           }
 
+          // TODO check curr_exp_id
           if (matched_exp_id == 0) {
             ++numexps;
             Create_New_Exp(curr_exp_id, numexps, gc_x, gc_y, hdc, vt_id);
