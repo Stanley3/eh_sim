@@ -91,7 +91,7 @@ namespace eh_sim
     for(int i=0; i<gray_image_x_sums.size(); ++i)
         gray_image_x_sums[i] /= gray_image_sums;
     for(int i=0; i<depth_image_x_sums.size(); ++i)
-        depth_image_x_sums[i] *= (4096.0/255.0/DEPTH_SUM);
+        depth_image_x_sums[i] *= (4096.0/(255.0*DEPTH_SUM));
 
     cout << "two loop done!" << "\n";
 
